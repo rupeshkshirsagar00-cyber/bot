@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aqua Leaks — Game Claimer</title>
+<style>
+  :root{
+    --bg:#0a0e17;--panel:#111827;--panel2:#1a2233;--line:#233047;
+    --text:#e6edf7;--muted:#7d8ba3;--aqua:#22d3ee;--aqua2:#06b6d4;
+    --ok:#34d399;--err:#f87171;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Segoe UI',system-ui,sans-serif;
+    background:radial-gradient(1200px 600px at 50% -10%,#0e2233,#0a0e17 60%);
+    color:var(--text);min-height:100vh;display:flex;align-items:center;
+    justify-content:center;padding:24px;
+  }
+  .app{
+    width:100%;max-width:680px;background:var(--panel);
+    border:1px solid var(--line);border-radius:16px;
+    box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 0 1px rgba(34,211,238,.05);
+    overflow:hidden;
+  }
+  header{padding:22px 24px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,var(--panel2),var(--panel));}
+  header h1{font-size:20px;letter-spacing:.5px;display:flex;align-items:center;gap:10px;}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--aqua);
+    box-shadow:0 0 12px var(--aqua);animation:pulse 1.8s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  header p{color:var(--muted);font-size:13px;margin-top:4px}
+  .body{padding:24px}
+  .tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+  .tab{padding:9px 16px;border-radius:10px;border:1px solid var(--line);
+    background:var(--panel2);color:var(--muted);cursor:pointer;
+    font-size:13px;font-weight:600;transition:.15s;}
+  .tab:hover{color:var(--text);border-color:var(--aqua2)}
+  .tab.active{background:linear-gradient(135deg,var(--aqua2),var(--aqua));
+    color:#04121a;border-color:transparent;}
+  .panel{display:none}
+  .panel.active{display:block}
+  label{display:block;font-size:12px;color:var(--muted);margin:14px 0 6px;
+    font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+  input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);
+    background:#0b1220;color:var(--text);font-size:14px;outline:none;transition:.15s;}
+  input:focus{border-color:var(--aqua);box-shadow:0 0 0 3px rgba(34,211,238,.12)}
+  .row{display:flex;gap:12px}
+  .row>div{flex:1}
+  button{margin-top:18px;width:100%;padding:13px;border-radius:10px;border:none;
+    background:linear-gradient(135deg,var(--aqua2),var(--aqua));color:#04121a;
+    font-size:14px;font-weight:700;cursor:pointer;transition:.15s;letter-spacing:.3px;}
+  button:hover{filter:brightness(1.1);transform:translateY(-1px)}
+  button:active{transform:translateY(0)}
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+  .stat{background:var(--panel2);border:1px solid var(--line);
+    border-radius:12px;padding:16px;}
+  .stat .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .stat .v{font-size:24px;font-weight:700;margin-top:6px;color:var(--aqua)}
+  .log{margin-top:18px;background:#0b1220;border:1px solid var(--line);
+    border-radius:12px;padding:14px;height:200px;overflow-y:auto;
+    font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.7;}
+  .log .ok{color:var(--ok)}
+  .log .err{color:var(--err)}
+  .log .info{color:var(--muted)}
+  .badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700}
+  .badge.on{background:rgba(52,211,153,.15);color:var(--ok)}
+  .badge.off{background:rgba(248,113,113,.15);color:var(--err)}
+  footer{padding:14px 24px;border-top:1px solid var(--line);font-size:12px;
+    color:var(--muted);text-align:center;}
+  footer b{color:var(--aqua)}
+
+  /* profile card */
+  .profile-card{background:linear-gradient(135deg,#141d2e,#0d1521);
+    border:1px solid var(--line);border-radius:14px;padding:18px;
+    display:flex;gap:16px;align-items:center;min-height:96px;}
+  .pc-loading{color:var(--muted);font-size:13px}
+  .pc-avatar{width:64px;height:64px;border-radius:50%;border:2px solid var(--aqua);
+    object-fit:cover;background:#0b1220;flex-shrink:0;}
+  .pc-info{flex:1;min-width:0}
+  .pc-name{font-size:16px;font-weight:700;color:var(--text);
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .pc-tag{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;
+    background:rgba(34,211,238,.15);color:var(--aqua);}
+  .pc-tag.nitro{background:rgba(255,115,250,.15);color:#ff73fa}
+  .pc-tag.ok{background:rgba(52,211,153,.15);color:var(--ok)}
+  .pc-sub{font-size:12px;color:var(--muted);margin-top:4px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .pc-row{display:flex;gap:14px;margin-top:8px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+  .pc-row b{color:var(--text);font-weight:700}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1><span class="dot"></span> Aqua Leaks</h1>
+    <p>discord game claimer · control panel</p>
+  </header>
+
+  <div class="body">
+    <div class="tabs">
+      <div class="tab active" data-tab="setup">Setup</div>
+      <div class="tab" data-tab="status">Status</div>
+      <div class="tab" data-tab="run">Run</div>
+    </div>
+
+    <!-- SETUP -->
+    <div class="panel active" id="setup">
+      <label>Discord Token</label>
+      <input id="token" type="password" placeholder="paste your token here" autocomplete="off">
+      <label>Cookie (optional)</label>
+      <input id="cookie" type="password" placeholder="optional — leave blank to skip" autocomplete="off">
+      <button onclick="saveSetup()">Save Config</button>
+      <div class="log" id="setupLog"><span class="info">awaiting input…</span></div>
+    </div>
+
+    <!-- STATUS -->
+    <div class="panel" id="status">
+      <div class="stat-grid">
+        <div class="stat"><div class="k">Token</div><div class="v" id="sToken">—</div></div>
+        <div class="stat"><div class="k">Cookie</div><div class="v" id="sCookie">—</div></div>
+      </div>
+      <div class="stat-grid" style="margin-top:12px">
+        <div class="stat"><div class="k">Games Claimed</div><div class="v" id="sGames">0</div></div>
+        <div class="stat"><div class="k">Hours Claimed</div><div class="v" id="sHours">0</div></div>
+      </div>
+      <div style="margin-top:14px;font-size:12px;color:var(--muted)">
+        Fingerprint: <span id="sFp" style="color:var(--aqua)">none</span>
+      </div>
+      <button onclick="refreshStatus()">Refresh</button>
+    </div>
+
+    <!-- RUN -->
+    <div class="panel" id="run">
+      <div class="profile-card" id="profileCard">
+        <div class="pc-loading">set a token in Setup to load your account…</div>
+      </div>
+
+      <div class="row" style="margin-top:18px">
+        <div>
+          <label>Rounds</label>
+          <input id="rounds" type="number" value="1" min="1">
+        </div>
+        <div>
+          <label>Batch Size</label>
+          <input id="batch" type="number" value="3" min="1" max="12">
+        </div>
+      </div>
+      <button onclick="runClaim()">▶ Start Claiming</button>
+      <div class="log" id="runLog"><span class="info">idle…</span></div>
+    </div>
+  </div>
+
+  <footer>built by <b>Monicic</b> · aqua leaks core</footer>
+</div>
+
+<script>
+const API = "http://localhost:8000";
+const state = { token:"", cookie:"", fp:"", games:0, hours:0 };
+
+function log(id, msg, cls="info"){
+  const el = document.getElementById(id);
+  const line = document.createElement("div");
+  line.className = cls;
+  line.textContent = msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+document.querySelectorAll(".tab").forEach(t=>{
+  t.onclick = ()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
+    t.classList.add("active");
+    document.getElementById(t.dataset.tab).classList.add("active");
+    if(t.dataset.tab==="status") refreshStatus();
+    if(t.dataset.tab==="run") loadProfile();
+  };
+});
+
+async function saveSetup(){
+  const t = document.getElementById("token").value.trim();
+  const c = document.getElementById("cookie").value.trim();
+  if(!t){ log("setupLog","token is required","err"); return; }
+  state.token = t; state.cookie = c;
+  try{
+    const r = await fetch(API+"/setup",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({token:t, cookie:c})
+    });
+    const d = await r.json();
+    state.fp = d.fingerprint || state.fp;
+    log("setupLog","[ok] config saved","ok");
+    log("setupLog","fingerprint: "+state.fp,"info");
+    loadProfile();
+  }catch(e){
+    log("setupLog","save failed: "+e.message,"err");
+  }
+}
+
+function refreshStatus(){
+  document.getElementById("sToken").innerHTML =
+    state.token ? '<span class="badge on">SET</span>' : '<span class="badge off">NONE</span>';
+  document.getElementById("sCookie").innerHTML =
+    state.cookie ? '<span class="badge on">SET</span>' : '<span class="badge off">NONE</span>';
+  document.getElementById("sGames").textContent = state.games;
+  document.getElementById("sHours").textContent = state.hours;
+  document.getElementById("sFp").textContent = state.fp || "none";
+}
+
+async function loadProfile(){
+  const card = document.getElementById("profileCard");
+  if(!state.token){
+    card.innerHTML = '<div class="pc-loading">set a token in Setup to load your account…</div>';
+    return;
+  }
+  card.innerHTML = '<div class="pc-loading">loading account…</div>';
+  try{
+    const r = await fetch(API+"/profile");
+    if(!r.ok) throw new Error("bad token ("+r.status+")");
+    const u = await r.json();
+
+    const name = u.global_name || u.username || "unknown";
+    const disc = u.discriminator && u.discriminator !== "0" ? "#"+u.discriminator : "";
+    const av = u.avatar
+      ? `${API}/avatar/${u.id}/${u.avatar}`
+      : "https://cdn.discordapp.com/embed/avatars/0.png";
+
+    const nitroTag = u.nitro ? `<span class="pc-tag nitro">NITRO</span>` : "";
+    const verifiedTag = u.verified ? `<span class="pc-tag ok">✔ verified</span>` : "";
+
+    card.innerHTML = `
+      <img class="pc-avatar" src="${av}" alt="avatar">
+      <div class="pc-info">
+        <div class="pc-name">
+          ${name}${disc}
+          <span class="pc-tag">${u.id}</span>
+          ${nitroTag}
+        </div>
+        <div class="pc-sub">${u.email || "(no email)"} ${verifiedTag}</div>
+        <div class="pc-row">
+          <span>guilds <b>${u.guilds}</b></span>
+          <span>2fa <b>${u.mfa_enabled ? "on" : "off"}</b></span>
+          <span>locale <b>${u.locale || "?"}</b></span>
+        </div>
+      </div>
+    `;
+  }catch(e){
+    card.innerHTML = `<div class="pc-loading" style="color:var(--err)">failed: ${e.message}</div>`;
+  }
+}
+
+async function runClaim(){
+  if(!state.token){ log("runLog","set your token first (Setup tab)","err"); return; }
+  const rounds = +document.getElementById("rounds").value || 1;
+  const batch = +document.getElementById("batch").value || 3;
+  log("runLog","--- starting "+rounds+" round(s), batch "+batch+" ---","info");
+
+  for(let i=0;i<rounds;i++){
+    log("runLog","round "+(i+1)+"/"+rounds+" …","info");
+    try{
+      const r = await fetch(API+"/claim",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({token:state.token,cookie:state.cookie,batch})
+      });
+      const data = await r.json();
+      (data.results||[]).forEach(res=>{
+        log("runLog","["+(res.ok?"ok":"err")+"] "+res.game+" -> "+res.status,
+            res.ok?"ok":"err");
+      });
+    }catch(e){
+      log("runLog","request failed: "+e.message,"err");
+    }
+  }
+
+  try{
+    const s = await fetch(API+"/status").then(r=>r.json());
+    state.games = s.games;
+    state.hours = s.hours;
+    state.fp = s.fingerprint;
+  }catch(e){}
+  refreshStatus();
+}
+
+refreshStatus();
+</script>
+</body>
+</html>
